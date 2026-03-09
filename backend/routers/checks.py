@@ -2,7 +2,7 @@ import os
 import tempfile
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db, SessionLocal
@@ -82,7 +82,6 @@ def _run_compliance_check(document_id: int, api_key: str):
 @router.post("/run/{document_id}", response_model=CheckRunResponse)
 def run_check(
     document_id: int,
-    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
     document = db.query(Document).filter(Document.id == document_id).first()
@@ -96,7 +95,7 @@ def run_check(
             detail="QWEN_API_KEY is not configured on the server.",
         )
 
-    background_tasks.add_task(_run_compliance_check, document_id, api_key)
+    _run_compliance_check(document_id, api_key)
 
     return CheckRunResponse(
         message="Compliance check started.",
