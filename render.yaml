@@ -1,3 +1,9 @@
+databases:
+  - name: compliance-checker-db
+    databaseName: compliance_checker
+    user: compliance_user
+    plan: free
+
 services:
   - type: web
     name: compliance-checker-backend
@@ -7,7 +13,9 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: compliance-checker-db
+          property: connectionString
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_KEY
